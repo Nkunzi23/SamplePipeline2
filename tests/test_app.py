@@ -14,7 +14,7 @@ def test_home_returns_200(client):
 def test_home_message(client):
     response = client.get('/')
     data = response.get_json()
-    assert data['message'] == 'Hello from FBC Pipeline!'
+    assert data['message'] == 'Hello from my Sample Pipeline!'
 
 def test_health_check(client):
     response = client.get('/health')
