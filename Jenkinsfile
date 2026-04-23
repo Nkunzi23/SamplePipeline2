@@ -12,15 +12,22 @@ pipeline {
 
         stage('Install Dependencies') {
             steps {
-                echo '📦 Installing Python dependencies...'
-                sh 'pip3 install -r requirements.txt'
+                echo '📦 Setting up virtual environment and installing dependencies...'
+                sh '''
+                    python3 -m venv venv
+                    . venv/bin/activate
+                    pip install -r requirements.txt
+                '''
             }
         }
 
         stage('Run Tests') {
             steps {
                 echo '🧪 Running tests...'
-                sh 'python3 -m pytest tests/ -v'
+                sh '''
+                    . venv/bin/activate
+                    python3 -m pytest tests/ -v
+                '''
             }
         }
 
@@ -28,16 +35,11 @@ pipeline {
             steps {
                 echo '🚀 Deploying application...'
                 sh '''
-                    # Kill old running instance if exists
                     pkill -f "python3 app.py" || true
-                    
-                    # Start fresh
+                    sleep 1
+                    . venv/bin/activate
                     nohup python3 app.py > app.log 2>&1 &
-                    
-                    # Give it 2 seconds to start
                     sleep 2
-                    
-                    # Confirm it's alive
                     curl -s http://localhost:5000/health
                 '''
             }
